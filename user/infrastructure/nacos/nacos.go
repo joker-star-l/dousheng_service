@@ -1,7 +1,7 @@
 package nacos
 
 import (
-	"dousheng_service/gateway/config"
+	"dousheng_service/user/infrastructure/config"
 	"github.com/joker-star-l/dousheng_common/config/log"
 	util_json "github.com/joker-star-l/dousheng_common/util/json"
 	util_nacos "github.com/joker-star-l/dousheng_common/util/nacos"
@@ -20,5 +20,5 @@ func init() {
 			util_nacos.GetAndListenJSONConfig(ConfigClient, &config.C, config.C.NacosConfigList[i])
 		}
 	}
-	log.Slog.Infof("%s", util_json.Str(config.C.Gateway))
+	log.Slog.Infof("%s", util_json.Str(config.C.UserService))
 }

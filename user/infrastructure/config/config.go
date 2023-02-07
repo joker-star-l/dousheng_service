@@ -9,35 +9,32 @@ import (
 
 var C = Config{
 	common.Config{
-		Env:      "dev",
-		Ip:       util_net.LocalIp(),
-		HttpName: "gateway",
-		HttpPort: 7001,
+		MachineId: 1,
+		Env:       "dev",
+		Ip:        util_net.LocalIp(),
+		HttpName:  "user_service",
+		HttpPort:  8081,
 		NacosClientParam: vo.NacosClientParam{
 			ServerConfigs: []constant.ServerConfig{
 				*constant.NewServerConfig("111.229.8.227", 8848),
 			},
 			ClientConfig: &constant.ClientConfig{
-				CacheDir: "/tmp/dousheng_service/gateway/nacos/cache/",
-				LogDir:   "/tmp/dousheng_service/gateway/nacos/log/",
+				CacheDir: "/tmp/dousheng_service/user/nacos/cache/",
+				LogDir:   "/tmp/dousheng_service/user/nacos/cache/",
 			},
 		},
 		NacosConfigList: []vo.ConfigParam{
-			{DataId: "gateway.json", Group: "DEFAULT_GROUP"},
+			{DataId: "user_service.json", Group: "DEFAULT_GROUP"},
 		},
 	},
-	Gateway{},
+	UserService{},
 }
 
 type Config struct {
 	common.Config
-	Gateway
+	UserService
 }
 
-type Gateway struct {
-	// key: prefix, value: service
-	Mapping []struct {
-		Prefix  string `json:"prefix"`
-		Service string `json:"service"`
-	} `json:"mapping"`
+type UserService struct {
+	Dsn string `json:"dsn"`
 }

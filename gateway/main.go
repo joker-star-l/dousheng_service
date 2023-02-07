@@ -3,6 +3,7 @@ package main
 import (
 	my_config "dousheng_service/gateway/config"
 	my_nacos "dousheng_service/gateway/config/nacos"
+	"flag"
 	"github.com/cloudwego/hertz/pkg/app/client"
 	"github.com/cloudwego/hertz/pkg/app/middlewares/client/sd"
 	"github.com/cloudwego/hertz/pkg/common/config"
@@ -11,10 +12,18 @@ import (
 	"github.com/hertz-contrib/reverseproxy"
 	"github.com/joker-star-l/dousheng_common/config/log"
 	util_hertz "github.com/joker-star-l/dousheng_common/util/hertz"
+	"os"
 	"strings"
 )
 
+func argParse() {
+	flag.IntVar(&my_config.C.MachineId, "machineId", os.Getpid(), "machineId, default is pid")
+	flag.StringVar(&my_config.C.Env, "env", "dev", "env, default is dev")
+	flag.Parse()
+}
+
 func main() {
+	argParse()
 	// 创建客户端
 	cli, err := client.NewClient()
 	if err != nil {
