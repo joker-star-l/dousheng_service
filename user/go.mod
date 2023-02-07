@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/bwmarrin/snowflake v0.3.0
 	github.com/cloudwego/hertz v0.5.2
-	github.com/joker-star-l/dousheng_common v0.0.5
+	github.com/joker-star-l/dousheng_common v0.0.6
 	github.com/nacos-group/nacos-sdk-go v1.1.4
 	gorm.io/driver/postgres v1.4.6
 	gorm.io/gorm v1.24.5

@@ -1,4 +1,4 @@
-package gorm
+package db
 
 import (
 	"dousheng_service/user/infrastructure/config"

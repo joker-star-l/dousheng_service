@@ -1,7 +1,9 @@
 package entity
 
+import common "github.com/joker-star-l/dousheng_common/entity"
+
 type User struct {
-	Id       int64  `json:"id" gorm:"column:id"`
+	common.Model
 	Name     string `json:"name" gorm:"column:name"`
 	Password string `json:"password" gorm:"column:password"`
 }
