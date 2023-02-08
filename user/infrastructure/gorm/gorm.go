@@ -1,4 +1,4 @@
-package db
+package gorm
 
 import (
 	"dousheng_service/user/infrastructure/config"
@@ -10,7 +10,7 @@ import (
 
 var DB *gorm.DB
 
-func init() {
+func Init() {
 	var err error
 	DB, err = gorm.Open(postgres.Open(config.C.Dsn), &gorm.Config{
 		SkipDefaultTransaction: true,

@@ -22,8 +22,13 @@ func argParse() {
 	flag.Parse()
 }
 
-func main() {
+func init() {
 	argParse()
+	log.Slog.Infof("machineId: %d", my_config.C.MachineId)
+	my_nacos.Init()
+}
+
+func main() {
 	// 创建客户端
 	cli, err := client.NewClient()
 	if err != nil {

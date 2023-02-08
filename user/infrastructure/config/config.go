@@ -14,6 +14,8 @@ var C = Config{
 		Ip:        util_net.LocalIp(),
 		HttpName:  "user_service",
 		HttpPort:  8081,
+		RpcName:   "user_rpc_service",
+		RpcPort:   6061,
 		NacosClientParam: vo.NacosClientParam{
 			ServerConfigs: []constant.ServerConfig{
 				*constant.NewServerConfig("111.229.8.227", 8848),

@@ -12,7 +12,7 @@ import (
 var Client naming_client.INamingClient
 var ConfigClient config_client.IConfigClient
 
-func init() {
+func Init() {
 	Client, ConfigClient = util_nacos.NewClient(config.C.NacosClientParam)
 	util_nacos.RegisterService(Client, config.C.Ip, config.C.HttpPort, config.C.HttpName)
 	if config.C.NacosConfigList != nil {
