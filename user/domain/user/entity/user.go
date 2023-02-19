@@ -14,3 +14,12 @@ type User struct {
 func (u *User) TableName() string {
 	return "user"
 }
+
+const (
+	RedisKeyUserStatistics      = "user_statistics"
+	RedisHKeyUserFollowCount    = "follow_count"
+	RedisHKeyUserFollowerCount  = "follower_count"
+	RedisHKeyUserTotalFavorited = "total_favorited"
+	RedisHKeyUserWorkCount      = "work_count"
+	RedisHKeyUserFavoriteCount  = "favorite_count"
+)

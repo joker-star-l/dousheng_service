@@ -6,6 +6,7 @@ import (
 	"dousheng_service/user/infrastructure/kitex"
 	"dousheng_service/user/infrastructure/minio"
 	"dousheng_service/user/infrastructure/nacos"
+	"dousheng_service/user/infrastructure/redis"
 	"dousheng_service/user/infrastructure/snowflake"
 	"dousheng_service/user/interfaces"
 	"flag"
@@ -28,6 +29,7 @@ func init() {
 	gorm.Init()
 	snowflake.Init()
 	minio.Init()
+	redis.Init()
 }
 
 func main() {

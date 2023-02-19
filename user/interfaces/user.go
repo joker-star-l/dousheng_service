@@ -60,12 +60,14 @@ func userRouter(h *server.Hertz) {
 		// 需要认证
 		r.Use(jwt.Middleware.MiddlewareFunc())
 		r.GET("/", func(c context.Context, ctx *app.RequestContext) {
-			userId, err := strconv.ParseInt(ctx.Query("user_id"), 10, 0)
+			tokenUser, _ := ctx.Get(jwt.KeyIdentity)
+			userId, _ := strconv.ParseInt(tokenUser.(map[string]any)["id"].(string), 10, 0)
+			queryId, err := strconv.ParseInt(ctx.Query("user_id"), 10, 0)
 			if err != nil {
 				ctx.JSON(consts.StatusOK, common.ErrorResponse("参数错误"))
 				return
 			}
-			userInfo, err := service.UserInfo(userId)
+			userInfo, err := service.UserInfo(userId, queryId)
 			if err != nil {
 				ctx.JSON(consts.StatusOK, common.ErrorResponse(err.Error()))
 				return

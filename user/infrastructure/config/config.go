@@ -45,4 +45,8 @@ type UserService struct {
 		AccessKeyID     string `json:"access_key_id"`
 		SecretAccessKey string `json:"secret_access_key"`
 	} `json:"minio"`
+	Redis struct {
+		Address  string `json:"address"`
+		Password string `json:"password"`
+	} `json:"redis"`
 }

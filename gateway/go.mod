@@ -10,7 +10,7 @@ require (
 	github.com/nacos-group/nacos-sdk-go v1.1.4
 )
 
-//replace github.com/joker-star-l/dousheng_common => ../../dousheng_common
+replace github.com/joker-star-l/dousheng_common => ../../dousheng_common
 
 require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.18 // indirect

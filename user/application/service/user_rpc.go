@@ -9,7 +9,7 @@ import (
 type UserImpl struct{}
 
 func (s *UserImpl) UserInfo(ctx context.Context, userId int64) (resp *api.UserInfoResponse, err error) {
-	info, err := UserInfo(userId)
+	info, err := UserInfo(userId, userId)
 	if err != nil {
 		return &api.UserInfoResponse{
 			Response: &api.Response{

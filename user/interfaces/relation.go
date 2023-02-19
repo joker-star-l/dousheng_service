@@ -3,6 +3,7 @@ package interfaces
 import (
 	"context"
 	"dousheng_service/user/application/service"
+	"dousheng_service/user/interfaces/vo"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -25,6 +26,10 @@ func relationRouter(h *server.Hertz) {
 				ctx.JSON(consts.StatusOK, common.ErrorResponse("参数错误"))
 				return
 			}
+			if from == to {
+				ctx.JSON(consts.StatusOK, common.ErrorResponse("不能关注自己"))
+				return
+			}
 			if actionType == "1" {
 				err = service.Follow(from, to)
 			} else if actionType == "2" {
@@ -35,6 +40,60 @@ func relationRouter(h *server.Hertz) {
 				return
 			}
 			ctx.JSON(consts.StatusOK, common.SuccessResponse())
+		})
+		r.GET("/follow/list/", func(c context.Context, ctx *app.RequestContext) {
+			userId, err := strconv.ParseInt(ctx.Query("user_id"), 10, 0)
+			if err != nil {
+				ctx.JSON(consts.StatusOK, common.ErrorResponse("参数错误"))
+				return
+			}
+			followList, err := service.GetFollowList(userId)
+			if err != nil {
+				ctx.JSON(consts.StatusOK, common.ErrorResponse(err.Error()))
+				return
+			}
+			ctx.JSON(consts.StatusOK, vo.UserInfoListResponse{
+				Response: common.SuccessResponse(),
+				UserList: followList,
+			})
+		})
+		r.GET("/follower/list/", func(c context.Context, ctx *app.RequestContext) {
+			userId, err := strconv.ParseInt(ctx.Query("user_id"), 10, 0)
+			if err != nil {
+				ctx.JSON(consts.StatusOK, common.ErrorResponse("参数错误"))
+				return
+			}
+			followerList, err := service.GetFollowerList(userId)
+			if err != nil {
+				ctx.JSON(consts.StatusOK, common.ErrorResponse(err.Error()))
+				return
+			}
+			ctx.JSON(consts.StatusOK, vo.UserInfoListResponse{
+				Response: common.SuccessResponse(),
+				UserList: followerList,
+			})
+		})
+		r.GET("/friend/list/", func(c context.Context, ctx *app.RequestContext) {
+			tokenUser, _ := ctx.Get(jwt.KeyIdentity)
+			userId, _ := strconv.ParseInt(tokenUser.(map[string]any)["id"].(string), 10, 0)
+			queryId, err := strconv.ParseInt(ctx.Query("user_id"), 10, 0)
+			if err != nil {
+				ctx.JSON(consts.StatusOK, common.ErrorResponse("参数错误"))
+				return
+			}
+			if userId != queryId {
+				ctx.JSON(consts.StatusOK, common.ErrorResponse("不能查看他人的好友"))
+				return
+			}
+			friendList, err := service.GetFriendList(queryId)
+			if err != nil {
+				ctx.JSON(consts.StatusOK, common.ErrorResponse(err.Error()))
+				return
+			}
+			ctx.JSON(consts.StatusOK, vo.UserInfoListResponse{
+				Response: common.SuccessResponse(),
+				UserList: friendList,
+			})
 		})
 	}
 }

@@ -6,12 +6,15 @@ import (
 	"dousheng_service/user/infrastructure/config"
 	"dousheng_service/user/infrastructure/gorm"
 	my_minio "dousheng_service/user/infrastructure/minio"
+	"dousheng_service/user/infrastructure/redis"
 	"dousheng_service/user/infrastructure/snowflake"
 	"dousheng_service/user/interfaces/vo"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"github.com/joker-star-l/dousheng_common/config/log"
 	common "github.com/joker-star-l/dousheng_common/entity"
+	util_redis "github.com/joker-star-l/dousheng_common/util/redis"
 	"github.com/minio/minio-go/v7"
 	"golang.org/x/crypto/bcrypt"
 	"io"
@@ -53,9 +56,9 @@ func Login(userVO *vo.LoginUser) (*common.TokenUser, error) {
 	return &common.TokenUser{Id: strconv.FormatInt(user.Id, 10), Name: user.Name}, nil
 }
 
-func UserInfo(userId int64) (*vo.UserInfo, error) {
+func UserInfo(userId int64, queryId int64) (*vo.UserInfo, error) {
 	user := &entity.User{}
-	tx := gorm.DB.Limit(1).Find(user, userId)
+	tx := gorm.DB.Limit(1).Find(user, queryId)
 	if tx.RowsAffected < 1 {
 		return nil, errors.New("用户不存在")
 	}
@@ -100,20 +103,35 @@ func UserInfo(userId int64) (*vo.UserInfo, error) {
 		}
 	}
 
-	// TODO count 信息
-	return &vo.UserInfo{
+	userInfo := &vo.UserInfo{
 		Id:              user.Id,
 		Name:            user.Name,
-		FollowCount:     0,
-		FollowerCount:   0,
-		IsFollow:        false,
 		Avatar:          avatar,
 		BackgroundImage: backgroundImage,
 		Signature:       user.Signature,
-		TotalFavorited:  0,
-		WorkCount:       0,
-		FavoriteCount:   0,
-	}, nil
+	}
+
+	// follow 信息
+	if userId != queryId {
+		tx = gorm.DB.Select("id").Where("user_from = ? and user_to = ?", userId, queryId).Limit(1).Find(&entity.UserFollow{})
+		if tx.RowsAffected > 0 {
+			userInfo.IsFollow = true
+		}
+	}
+
+	// count 信息
+	result, err := redis.Client.HGetAll(fmt.Sprintf("%s:%d", entity.RedisKeyUserStatistics, queryId)).Result()
+	if err != nil {
+		log.Slog.Errorln(err)
+	} else {
+		userInfo.FollowCount = util_redis.ParseCount(result[entity.RedisHKeyUserFollowCount])
+		userInfo.FollowerCount = util_redis.ParseCount(result[entity.RedisHKeyUserFollowerCount])
+		userInfo.TotalFavorited = util_redis.ParseCount(result[entity.RedisHKeyUserTotalFavorited])
+		userInfo.WorkCount = util_redis.ParseCount(result[entity.RedisHKeyUserWorkCount])
+		userInfo.FavoriteCount = util_redis.ParseCount(result[entity.RedisHKeyUserFavoriteCount])
+	}
+
+	return userInfo, nil
 }
 
 func Follow(from int64, to int64) error {
@@ -133,4 +151,49 @@ func Follow(from int64, to int64) error {
 
 func CancelFollow(from int64, to int64) error {
 	return entity.UserFollowRepo.Delete(from, to)
+}
+
+func GetFollowList(userId int64) ([]vo.UserInfo, error) {
+	var userFollowList []entity.UserFollow
+	gorm.DB.Where("user_from = ?", userId).Select("user_to").Find(&userFollowList)
+	result := make([]vo.UserInfo, 0, len(userFollowList))
+	for _, follow := range userFollowList {
+		info, err := UserInfo(userId, follow.UserTo)
+		if err == nil {
+			result = append(result, *info)
+		}
+	}
+	return result, nil
+}
+
+func GetFollowerList(userId int64) ([]vo.UserInfo, error) {
+	var userFollowerList []entity.UserFollow
+	gorm.DB.Where("user_to = ?", userId).Select("user_from").Find(&userFollowerList)
+	result := make([]vo.UserInfo, 0, len(userFollowerList))
+	for _, follow := range userFollowerList {
+		info, err := UserInfo(userId, follow.UserFrom)
+		if err == nil {
+			result = append(result, *info)
+		}
+	}
+	return result, nil
+}
+
+func GetFriendList(userId int64) ([]vo.UserInfo, error) {
+	var userFriendList []entity.UserFriend
+	gorm.DB.Where("user0 = ? or user1 = ?", userId, userId).Select("user0, user1").Find(&userFriendList)
+	result := make([]vo.UserInfo, 0, len(userFriendList))
+	for _, friend := range userFriendList {
+		var friendId int64
+		if friend.User0 == userId {
+			friendId = friend.User1
+		} else {
+			friendId = friend.User0
+		}
+		info, err := UserInfo(userId, friendId)
+		if err == nil {
+			result = append(result, *info)
+		}
+	}
+	return result, nil
 }

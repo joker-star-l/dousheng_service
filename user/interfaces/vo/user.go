@@ -31,3 +31,8 @@ type UserInfoResponse struct {
 	common.Response
 	User UserInfo `json:"user"`
 }
+
+type UserInfoListResponse struct {
+	common.Response
+	UserList []UserInfo `json:"user_list"`
+}
