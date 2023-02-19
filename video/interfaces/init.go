@@ -3,6 +3,5 @@ package interfaces
 import "github.com/cloudwego/hertz/pkg/app/server"
 
 func InitRouter(h *server.Hertz) {
-	userRouter(h)
-	relationRouter(h)
+	feedRouter(h)
 }

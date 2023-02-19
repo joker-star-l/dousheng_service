@@ -9,40 +9,33 @@ import (
 
 var C = Config{
 	common.Config{
-		MachineId: 1,
+		MachineId: 2,
 		Env:       "dev",
 		Ip:        util_net.LocalIp(),
-		HttpName:  "user_service",
-		HttpPort:  8081,
-		RpcName:   "user_rpc_service",
-		RpcPort:   6061,
+		HttpName:  "video_service",
+		HttpPort:  8082,
+		RpcName:   "video_rpc_service",
+		RpcPort:   6062,
 		NacosClientParam: vo.NacosClientParam{
 			ServerConfigs: []constant.ServerConfig{
 				*constant.NewServerConfig("111.229.8.227", 8848),
 			},
 			ClientConfig: &constant.ClientConfig{
-				CacheDir: "/tmp/dousheng_service/user/nacos/cache/",
-				LogDir:   "/tmp/dousheng_service/user/nacos/cache/",
+				CacheDir: "/tmp/dousheng_service/video/nacos/cache/",
+				LogDir:   "/tmp/dousheng_service/video/nacos/cache/",
 			},
 		},
 		NacosConfigList: []vo.ConfigParam{
-			{DataId: "user_service.json", Group: "DEFAULT_GROUP"},
+			{DataId: "video_service.json", Group: "DEFAULT_GROUP"},
 		},
 	},
-	UserService{},
+	VideoService{},
 }
 
 type Config struct {
 	common.Config
-	UserService
+	VideoService
 }
 
-type UserService struct {
-	Dsn   string `json:"dsn"`
-	Minio struct {
-		Bucket          string `json:"bucket"`
-		EndPoint        string `json:"end_point"`
-		AccessKeyID     string `json:"access_key_id"`
-		SecretAccessKey string `json:"secret_access_key"`
-	} `json:"minio"`
+type VideoService struct {
 }

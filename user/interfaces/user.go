@@ -16,7 +16,7 @@ func userRouter(h *server.Hertz) {
 	r := h.Group("/douyin/user")
 	{
 		// 无需认证
-		r.POST("/register", func(c context.Context, ctx *app.RequestContext) {
+		r.POST("/register/", func(c context.Context, ctx *app.RequestContext) {
 			user := &vo.LoginUser{}
 			err := ctx.BindAndValidate(user)
 			if err != nil {
@@ -29,13 +29,14 @@ func userRouter(h *server.Hertz) {
 				return
 			}
 			token, _, _ := jwt.Middleware.TokenGenerator(tokenUser)
+			id, _ := strconv.ParseInt(tokenUser.Id, 10, 0)
 			ctx.JSON(consts.StatusOK, vo.UserLoginResponse{
 				Response: common.SuccessResponse(),
-				UserId:   tokenUser.Id,
+				UserId:   id,
 				Token:    token,
 			})
 		})
-		r.POST("/login", func(c context.Context, ctx *app.RequestContext) {
+		r.POST("/login/", func(c context.Context, ctx *app.RequestContext) {
 			user := &vo.LoginUser{}
 			err := ctx.BindAndValidate(user)
 			if err != nil {
@@ -48,9 +49,10 @@ func userRouter(h *server.Hertz) {
 				return
 			}
 			token, _, _ := jwt.Middleware.TokenGenerator(tokenUser)
+			id, _ := strconv.ParseInt(tokenUser.Id, 10, 0)
 			ctx.JSON(consts.StatusOK, vo.UserLoginResponse{
 				Response: common.SuccessResponse(),
-				UserId:   tokenUser.Id,
+				UserId:   id,
 				Token:    token,
 			})
 		})
@@ -70,7 +72,7 @@ func userRouter(h *server.Hertz) {
 			}
 			ctx.JSON(consts.StatusOK, vo.UserInfoResponse{
 				Response: common.SuccessResponse(),
-				UserInfo: *userInfo,
+				User:     *userInfo,
 			})
 		})
 	}

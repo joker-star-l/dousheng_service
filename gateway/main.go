@@ -19,12 +19,12 @@ import (
 func argParse() {
 	flag.IntVar(&my_config.C.MachineId, "machineId", os.Getpid(), "machineId, default is pid")
 	flag.StringVar(&my_config.C.Env, "env", "dev", "env, default is dev")
+	flag.IntVar(&my_config.C.HttpPort, "httpPort", 7001, "httpPort, default is 7001")
 	flag.Parse()
 }
 
 func init() {
 	argParse()
-	log.Slog.Infof("machineId: %d", my_config.C.MachineId)
 	my_nacos.Init()
 }
 
