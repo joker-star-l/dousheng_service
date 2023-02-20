@@ -33,3 +33,20 @@ type VideoInfoListResponse struct {
 	VideoList []VideoInfo `json:"video_list"`
 	NextTime  int64       `json:"next_time,omitempty"`
 }
+
+type Comment struct {
+	Id         int64    `json:"id"`
+	User       UserInfo `json:"user"`
+	Content    string   `json:"content"`
+	CreateDate string   `json:"create_date"`
+}
+
+type CommentResponse struct {
+	common.Response
+	Comment Comment `json:"comment"`
+}
+
+type CommentListResponse struct {
+	common.Response
+	CommentList []Comment `json:"comment_list"`
+}

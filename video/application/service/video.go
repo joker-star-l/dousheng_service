@@ -7,6 +7,7 @@ import (
 	"dousheng_service/video/infrastructure/kitex"
 	"dousheng_service/video/infrastructure/redis"
 	"dousheng_service/video/interfaces/vo"
+	"errors"
 	"fmt"
 	"github.com/joker-star-l/dousheng_common/config/log"
 	common "github.com/joker-star-l/dousheng_common/entity"
@@ -44,6 +45,92 @@ func GetPublishList(userId int64, queryId int64) ([]vo.VideoInfo, error) {
 	return result, nil
 }
 
+func Favorite(userId int64, videoId int64) error {
+	// 检查视频是否存在
+	video := &entity.Video{}
+	tx := gorm.DB.Select("user_id").Limit(1).Find(video, videoId)
+	if tx.RowsAffected < 1 {
+		return errors.New("视频不存在")
+	}
+	videoFavorite := &entity.VideoFavorite{UserId: userId, VideoId: videoId, VideoUserId: video.UserId}
+	return entity.VideoFavoriteRepo.Create(videoFavorite)
+}
+
+func CancelFavorite(userId int64, videoId int64) error {
+	return entity.VideoFavoriteRepo.Delete(userId, videoId)
+}
+
+// GetFavoriteList userId: 用户自身id, queryId: 被查询的用户id
+func GetFavoriteList(userId int64, queryId int64) ([]vo.VideoInfo, error) {
+	// 查询列表
+	var favoriteList []entity.VideoFavorite
+	gorm.DB.Where("user_id", queryId).Select("video_id, video_user_id").Find(&favoriteList)
+	result := make([]vo.VideoInfo, 0, len(favoriteList))
+	for _, favorite := range favoriteList {
+		// rpc
+		userInfo := GetUserInfo(userId, favorite.VideoUserId)
+		// 查询video
+		video := &entity.Video{}
+		gorm.DB.Limit(1).Find(video, favorite.VideoId)
+		// 组装
+		videoInfo := GetVideoInfo(userId, video, userInfo)
+		result = append(result, *videoInfo)
+	}
+	return result, nil
+}
+
+func Comment(userId int64, videoId int64, commentText string) (*vo.Comment, error) {
+	// 检查视频是否存在
+	video := &entity.Video{}
+	tx := gorm.DB.Select("user_id").Limit(1).Find(video, videoId)
+	if tx.RowsAffected < 1 {
+		return nil, errors.New("视频不存在")
+	}
+	// 存储
+	comment := &entity.VideoComment{
+		UserId:      userId,
+		VideoId:     videoId,
+		VideoUserId: video.UserId,
+		Comment:     commentText,
+	}
+	err := entity.VideoCommentRepo.Create(comment)
+	if err != nil {
+		return nil, err
+	}
+	// RPC
+	userInfo := GetUserInfo(userId, userId)
+	// 组装
+	return &vo.Comment{
+		Id:         comment.Id,
+		User:       *userInfo,
+		Content:    comment.Comment,
+		CreateDate: comment.CreatedAt.Format("01-02"),
+	}, nil
+}
+
+func DeleteComment(userId int64, commentId int64) error {
+	return entity.VideoCommentRepo.Delete(userId, commentId)
+}
+
+func GetCommentList(userId int64, videoId int64) ([]vo.Comment, error) {
+	var commentList []entity.VideoComment
+	gorm.DB.Where("video_id = ?", videoId).Order("created_at desc").Find(&commentList)
+	result := make([]vo.Comment, 0, len(commentList))
+	for _, comment := range commentList {
+		// RPC
+		userInfo := GetUserInfo(userId, comment.UserId)
+		// 组装
+		result = append(result, vo.Comment{
+			Id:         comment.Id,
+			User:       *userInfo,
+			Content:    comment.Comment,
+			CreateDate: comment.CreatedAt.Format("01-02"),
+		})
+	}
+	return result, nil
+}
+
+// GetUserInfo userId: 用户自身id, queryId: 被查询的用户id
 func GetUserInfo(userId int64, queryId int64) *vo.UserInfo {
 	userInfo := &vo.UserInfo{}
 	info, _ := kitex.UserClient.UserInfo(context.Background(), userId, queryId)

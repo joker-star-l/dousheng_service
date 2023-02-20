@@ -42,12 +42,14 @@ func relationRouter(h *server.Hertz) {
 			ctx.JSON(consts.StatusOK, common.SuccessResponse())
 		})
 		r.GET("/follow/list/", func(c context.Context, ctx *app.RequestContext) {
-			userId, err := strconv.ParseInt(ctx.Query("user_id"), 10, 0)
+			tokenUser, _ := ctx.Get(jwt.KeyIdentity)
+			userId, _ := strconv.ParseInt(tokenUser.(map[string]any)["id"].(string), 10, 0)
+			queryId, err := strconv.ParseInt(ctx.Query("user_id"), 10, 0)
 			if err != nil {
 				ctx.JSON(consts.StatusOK, common.ErrorResponse("参数错误"))
 				return
 			}
-			followList, err := service.GetFollowList(userId)
+			followList, err := service.GetFollowList(userId, queryId)
 			if err != nil {
 				ctx.JSON(consts.StatusOK, common.ErrorResponse(err.Error()))
 				return
@@ -58,12 +60,14 @@ func relationRouter(h *server.Hertz) {
 			})
 		})
 		r.GET("/follower/list/", func(c context.Context, ctx *app.RequestContext) {
-			userId, err := strconv.ParseInt(ctx.Query("user_id"), 10, 0)
+			tokenUser, _ := ctx.Get(jwt.KeyIdentity)
+			userId, _ := strconv.ParseInt(tokenUser.(map[string]any)["id"].(string), 10, 0)
+			queryId, err := strconv.ParseInt(ctx.Query("user_id"), 10, 0)
 			if err != nil {
 				ctx.JSON(consts.StatusOK, common.ErrorResponse("参数错误"))
 				return
 			}
-			followerList, err := service.GetFollowerList(userId)
+			followerList, err := service.GetFollowerList(userId, queryId)
 			if err != nil {
 				ctx.JSON(consts.StatusOK, common.ErrorResponse(err.Error()))
 				return

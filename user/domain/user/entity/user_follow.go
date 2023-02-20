@@ -61,16 +61,18 @@ func (r *UserFollowRepository) Create(userFollow *UserFollow) error {
 	}
 
 	go func() {
-		pipe := redis.Client.TxPipeline()
-		// 更新 redis 关注数
-		pipe.HIncrBy(fmt.Sprintf("%s:%d", RedisKeyUserStatistics, userFollow.UserFrom), RedisHKeyUserFollowCount, 1)
-		// 更新 redis 粉丝数
-		pipe.HIncrBy(fmt.Sprintf("%s:%d", RedisKeyUserStatistics, userFollow.UserTo), RedisHKeyUserFollowerCount, 1)
-		_, err := pipe.Exec()
-		// 出错重试一次
+		// 出错重试
+		err := errors.New("start")
+		for i := 0; i < 3 && err != nil; i++ {
+			pipe := redis.Client.TxPipeline()
+			// 更新 redis 关注数
+			pipe.HIncrBy(fmt.Sprintf("%s:%d", RedisKeyUserStatistics, userFollow.UserFrom), RedisHKeyUserFollowCount, 1)
+			// 更新 redis 粉丝数
+			pipe.HIncrBy(fmt.Sprintf("%s:%d", RedisKeyUserStatistics, userFollow.UserTo), RedisHKeyUserFollowerCount, 1)
+			_, err = pipe.Exec()
+		}
 		if err != nil {
 			log.Slog.Errorln(err)
-			pipe.Exec()
 		}
 	}()
 
@@ -82,16 +84,18 @@ func (r *UserFollowRepository) Delete(from int64, to int64) error {
 		if tx.Where("user_from = ? and user_to = ?", from, to).Delete(&UserFollow{}).RowsAffected > 0 {
 			tx.Where("(user0 = ? and user1 = ?) or (user0 = ? and user1 = ?)", from, to, to, from).Delete(&UserFriend{})
 			go func() {
-				pipe := redis.Client.TxPipeline()
-				// 更新 redis 关注数
-				pipe.HIncrBy(fmt.Sprintf("%s:%d", RedisKeyUserStatistics, from), RedisHKeyUserFollowCount, -1)
-				// 更新 redis 粉丝数
-				pipe.HIncrBy(fmt.Sprintf("%s:%d", RedisKeyUserStatistics, to), RedisHKeyUserFollowerCount, -1)
-				_, err := pipe.Exec()
-				// 出错重试一次
+				// 出错重试
+				err := errors.New("start")
+				for i := 0; i < 3 && err != nil; i++ {
+					pipe := redis.Client.TxPipeline()
+					// 更新 redis 关注数
+					pipe.HIncrBy(fmt.Sprintf("%s:%d", RedisKeyUserStatistics, from), RedisHKeyUserFollowCount, -1)
+					// 更新 redis 粉丝数
+					pipe.HIncrBy(fmt.Sprintf("%s:%d", RedisKeyUserStatistics, to), RedisHKeyUserFollowerCount, -1)
+					_, err = pipe.Exec()
+				}
 				if err != nil {
 					log.Slog.Errorln(err)
-					pipe.Exec()
 				}
 			}()
 		}

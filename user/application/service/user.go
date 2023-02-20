@@ -56,6 +56,7 @@ func Login(userVO *vo.LoginUser) (*common.TokenUser, error) {
 	return &common.TokenUser{Id: strconv.FormatInt(user.Id, 10), Name: user.Name}, nil
 }
 
+// UserInfo userId: 用户自身id, queryId: 被查询的用户id
 func UserInfo(userId int64, queryId int64) (*vo.UserInfo, error) {
 	user := &entity.User{}
 	tx := gorm.DB.Limit(1).Find(user, queryId)
@@ -153,22 +154,34 @@ func CancelFollow(from int64, to int64) error {
 	return entity.UserFollowRepo.Delete(from, to)
 }
 
-func GetFollowList(userId int64) ([]vo.UserInfo, error) {
+// GetFollowList userId: 用户自身id, queryId: 被查询的用户id
+func GetFollowList(userId int64, queryId int64) ([]vo.UserInfo, error) {
 	var userFollowList []entity.UserFollow
-	gorm.DB.Where("user_from = ?", userId).Select("user_to").Find(&userFollowList)
+	gorm.DB.Where("user_from = ?", queryId).Select("user_to").Find(&userFollowList)
 	result := make([]vo.UserInfo, 0, len(userFollowList))
-	for _, follow := range userFollowList {
-		info, err := UserInfo(userId, follow.UserTo)
-		if err == nil {
-			result = append(result, *info)
+	if userId == queryId {
+		for _, follow := range userFollowList {
+			info, err := UserInfo(0, follow.UserTo)
+			if err == nil {
+				info.IsFollow = true
+				result = append(result, *info)
+			}
+		}
+	} else {
+		for _, follow := range userFollowList {
+			info, err := UserInfo(userId, follow.UserTo)
+			if err == nil {
+				result = append(result, *info)
+			}
 		}
 	}
 	return result, nil
 }
 
-func GetFollowerList(userId int64) ([]vo.UserInfo, error) {
+// GetFollowerList userId: 用户自身id, queryId: 被查询的用户id
+func GetFollowerList(userId int64, queryId int64) ([]vo.UserInfo, error) {
 	var userFollowerList []entity.UserFollow
-	gorm.DB.Where("user_to = ?", userId).Select("user_from").Find(&userFollowerList)
+	gorm.DB.Where("user_to = ?", queryId).Select("user_from").Find(&userFollowerList)
 	result := make([]vo.UserInfo, 0, len(userFollowerList))
 	for _, follow := range userFollowerList {
 		info, err := UserInfo(userId, follow.UserFrom)
