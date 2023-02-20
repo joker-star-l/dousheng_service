@@ -3,12 +3,17 @@ package snowflake
 import (
 	"dousheng_service/user/infrastructure/config"
 	"github.com/bwmarrin/snowflake"
+	"github.com/joker-star-l/dousheng_common/config/log"
 )
 
 var Snowflake *snowflake.Node
 
 func Init() {
-	Snowflake, _ = snowflake.NewNode(int64(config.C.MachineId))
+	var err error
+	Snowflake, err = snowflake.NewNode(int64(config.C.MachineId))
+	if err != nil {
+		log.Slog.Panic(err)
+	}
 }
 
 func GenerateId() int64 {

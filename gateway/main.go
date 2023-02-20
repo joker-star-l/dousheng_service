@@ -17,7 +17,7 @@ import (
 )
 
 func argParse() {
-	flag.IntVar(&my_config.C.MachineId, "machineId", os.Getpid(), "machineId, default is pid")
+	flag.IntVar(&my_config.C.MachineId, "machineId", os.Getpid()%1000, "machineId, default is pid")
 	flag.StringVar(&my_config.C.Env, "env", "dev", "env, default is dev")
 	flag.IntVar(&my_config.C.HttpPort, "httpPort", 7001, "httpPort, default is 7001")
 	flag.Parse()
