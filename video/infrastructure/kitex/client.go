@@ -1,20 +1,19 @@
-package service
+package kitex
 
 import (
-	"context"
-	"dousheng_service/user/infrastructure/config"
-	"dousheng_service/user/infrastructure/nacos"
+	"dousheng_service/video/infrastructure/config"
+	"dousheng_service/video/infrastructure/nacos"
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/transport"
-	"github.com/joker-star-l/dousheng_common/config/log"
 	api "github.com/joker-star-l/dousheng_idls/user/kitex_gen/api/user"
 	"github.com/kitex-contrib/registry-nacos/resolver"
+	"log"
 	"runtime"
-	"testing"
 )
 
-func TestUserImpl_UserInfo(t *testing.T) {
-	nacos.Init()
+var UserClient api.Client
+
+func InitClient() {
 	options := []client.Option{
 		client.WithResolver(resolver.NewNacosResolver(nacos.Client)),
 		client.WithTransportProtocol(transport.TTHeader),
@@ -22,7 +21,9 @@ func TestUserImpl_UserInfo(t *testing.T) {
 	if runtime.GOOS != "windows" {
 		options = append(options, client.WithMuxConnection(1))
 	}
-	c, _ := api.NewClient(config.C.RpcName, options...)
-	resp, _ := c.UserInfo(context.Background(), 1627294943292690432, 1627294943292690432)
-	log.Slog.Infoln(resp)
+	var err error
+	UserClient, err = api.NewClient(config.C.UserRpcName, options...)
+	if err != nil {
+		log.Panicln(err)
+	}
 }

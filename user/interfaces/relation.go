@@ -90,9 +90,9 @@ func relationRouter(h *server.Hertz) {
 				ctx.JSON(consts.StatusOK, common.ErrorResponse(err.Error()))
 				return
 			}
-			ctx.JSON(consts.StatusOK, vo.UserInfoListResponse{
-				Response: common.SuccessResponse(),
-				UserList: friendList,
+			ctx.JSON(consts.StatusOK, vo.FriendInfoListResponse{
+				Response:   common.SuccessResponse(),
+				FriendInfo: friendList,
 			})
 		})
 	}

@@ -27,6 +27,12 @@ type UserInfo struct {
 	FavoriteCount   int64  `json:"favorite_count"`
 }
 
+type FriendInfo struct {
+	UserInfo
+	Message string `json:"message"`
+	MsgType int64  `json:"msg_type"`
+}
+
 type UserInfoResponse struct {
 	common.Response
 	User UserInfo `json:"user"`
@@ -35,4 +41,9 @@ type UserInfoResponse struct {
 type UserInfoListResponse struct {
 	common.Response
 	UserList []UserInfo `json:"user_list"`
+}
+
+type FriendInfoListResponse struct {
+	common.Response
+	FriendInfo []FriendInfo `json:"user_list"`
 }

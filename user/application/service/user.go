@@ -112,7 +112,7 @@ func UserInfo(userId int64, queryId int64) (*vo.UserInfo, error) {
 	}
 
 	// follow 信息
-	if userId != queryId {
+	if userId != 0 && userId != queryId {
 		tx = gorm.DB.Select("id").Where("user_from = ? and user_to = ?", userId, queryId).Limit(1).Find(&entity.UserFollow{})
 		if tx.RowsAffected > 0 {
 			userInfo.IsFollow = true
@@ -179,10 +179,10 @@ func GetFollowerList(userId int64) ([]vo.UserInfo, error) {
 	return result, nil
 }
 
-func GetFriendList(userId int64) ([]vo.UserInfo, error) {
+func GetFriendList(userId int64) ([]vo.FriendInfo, error) {
 	var userFriendList []entity.UserFriend
 	gorm.DB.Where("user0 = ? or user1 = ?", userId, userId).Select("user0, user1").Find(&userFriendList)
-	result := make([]vo.UserInfo, 0, len(userFriendList))
+	result := make([]vo.FriendInfo, 0, len(userFriendList))
 	for _, friend := range userFriendList {
 		var friendId int64
 		if friend.User0 == userId {
@@ -192,7 +192,12 @@ func GetFriendList(userId int64) ([]vo.UserInfo, error) {
 		}
 		info, err := UserInfo(userId, friendId)
 		if err == nil {
-			result = append(result, *info)
+			// TODO RPC 调用
+			result = append(result, vo.FriendInfo{
+				UserInfo: *info,
+				Message:  "FAKE",
+				MsgType:  1,
+			})
 		}
 	}
 	return result, nil

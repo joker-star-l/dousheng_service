@@ -8,7 +8,7 @@ require (
 	github.com/cloudwego/kitex v0.4.4
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/joker-star-l/dousheng_common v0.0.7
-	github.com/joker-star-l/dousheng_idls/user v0.0.2
+	github.com/joker-star-l/dousheng_idls/user v0.0.3
 	github.com/kitex-contrib/registry-nacos v0.0.1
 	github.com/minio/minio-go/v7 v7.0.49
 	github.com/nacos-group/nacos-sdk-go v1.1.4

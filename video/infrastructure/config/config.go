@@ -38,4 +38,16 @@ type Config struct {
 }
 
 type VideoService struct {
+	Dsn   string `json:"dsn"`
+	Minio struct {
+		Bucket          string `json:"bucket"`
+		EndPoint        string `json:"end_point"`
+		AccessKeyID     string `json:"access_key_id"`
+		SecretAccessKey string `json:"secret_access_key"`
+	} `json:"minio"`
+	Redis struct {
+		Address  string `json:"address"`
+		Password string `json:"password"`
+	} `json:"redis"`
+	UserRpcName string `json:"user_rpc_name"`
 }

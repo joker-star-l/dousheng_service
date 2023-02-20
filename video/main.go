@@ -2,7 +2,12 @@ package main
 
 import (
 	"dousheng_service/video/infrastructure/config"
+	"dousheng_service/video/infrastructure/gorm"
+	"dousheng_service/video/infrastructure/kitex"
+	"dousheng_service/video/infrastructure/minio"
 	"dousheng_service/video/infrastructure/nacos"
+	"dousheng_service/video/infrastructure/redis"
+	"dousheng_service/video/infrastructure/snowflake"
 	"dousheng_service/video/interfaces"
 	"flag"
 	util_hertz "github.com/joker-star-l/dousheng_common/util/hertz"
@@ -20,6 +25,11 @@ func argParse() {
 func init() {
 	argParse()
 	nacos.Init()
+	kitex.InitClient()
+	gorm.Init()
+	minio.Init()
+	redis.Init()
+	snowflake.Init()
 }
 
 func main() {
