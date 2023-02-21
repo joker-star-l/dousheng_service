@@ -14,11 +14,28 @@ import (
 
 func commentRouter(h *server.Hertz) {
 	r := h.Group("/douyin/comment")
-	r.Use(jwt.Middleware.MiddlewareFunc())
 	{
+		r.GET("/list/", func(c context.Context, ctx *app.RequestContext) {
+			userId := jwt.ParseAndGetUserId(c, ctx)
+			videoId, err := strconv.ParseInt(ctx.Query("video_id"), 10, 0)
+			if err != nil {
+				ctx.JSON(consts.StatusOK, common.ErrorResponse("参数错误"))
+				return
+			}
+			commentList, err := service.GetCommentList(userId, videoId)
+			if err != nil {
+				ctx.JSON(consts.StatusOK, common.ErrorResponse(err.Error()))
+				return
+			}
+			ctx.JSON(consts.StatusOK, vo.CommentListResponse{
+				Response:    common.SuccessResponse(),
+				CommentList: commentList,
+			})
+		})
+
+		r.Use(jwt.Middleware.MiddlewareFunc())
 		r.POST("/action/", func(c context.Context, ctx *app.RequestContext) {
-			tokenUser, _ := ctx.Get(jwt.KeyIdentity)
-			userId, _ := strconv.ParseInt(tokenUser.(map[string]any)["id"].(string), 10, 0)
+			userId := jwt.GetUserId(ctx)
 			videoId, err := strconv.ParseInt(ctx.Query("video_id"), 10, 0)
 			actionType := ctx.Query("action_type")
 			if err != nil || !(actionType == "1" || actionType == "2") {
@@ -48,24 +65,6 @@ func commentRouter(h *server.Hertz) {
 			ctx.JSON(consts.StatusOK, vo.CommentResponse{
 				Response: common.SuccessResponse(),
 				Comment:  *comment,
-			})
-		})
-		r.GET("/list/", func(c context.Context, ctx *app.RequestContext) {
-			tokenUser, _ := ctx.Get(jwt.KeyIdentity)
-			userId, _ := strconv.ParseInt(tokenUser.(map[string]any)["id"].(string), 10, 0)
-			videoId, err := strconv.ParseInt(ctx.Query("video_id"), 10, 0)
-			if err != nil {
-				ctx.JSON(consts.StatusOK, common.ErrorResponse("参数错误"))
-				return
-			}
-			commentList, err := service.GetCommentList(userId, videoId)
-			if err != nil {
-				ctx.JSON(consts.StatusOK, common.ErrorResponse(err.Error()))
-				return
-			}
-			ctx.JSON(consts.StatusOK, vo.CommentListResponse{
-				Response:    common.SuccessResponse(),
-				CommentList: commentList,
 			})
 		})
 	}

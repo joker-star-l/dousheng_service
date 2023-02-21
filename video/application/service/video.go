@@ -2,19 +2,26 @@ package service
 
 import (
 	"context"
+	"dousheng_service/video/config"
 	"dousheng_service/video/domain/video/entity"
 	"dousheng_service/video/infrastructure/gorm"
 	"dousheng_service/video/infrastructure/kitex"
+	my_minio "dousheng_service/video/infrastructure/minio"
 	"dousheng_service/video/infrastructure/redis"
+	"dousheng_service/video/infrastructure/snowflake"
 	"dousheng_service/video/interfaces/vo"
 	"errors"
 	"fmt"
 	"github.com/joker-star-l/dousheng_common/config/log"
 	common "github.com/joker-star-l/dousheng_common/entity"
 	util_redis "github.com/joker-star-l/dousheng_common/util/redis"
+	"github.com/minio/minio-go/v7"
 	"mime/multipart"
+	"strings"
 	"time"
 )
+
+var VideoType = &[]string{".mp4", ".flv", ".f4v", ".webm"}
 
 func Feed(userId int64, latestTime time.Time) ([]vo.VideoInfo, error) {
 	var videoList []entity.Video
@@ -47,7 +54,39 @@ func GetPublishList(userId int64, queryId int64) ([]vo.VideoInfo, error) {
 }
 
 func Publish(userId int64, title string, file *multipart.FileHeader) error {
-	// 校验
+	reader, err := file.Open()
+	if err != nil {
+		log.Slog.Errorln(err)
+		return errors.New("视频上传失败")
+	}
+	fileSuffix := ""
+	for _, suffix := range *VideoType {
+		if strings.HasSuffix(file.Filename, suffix) {
+			fileSuffix = suffix
+			break
+		}
+	}
+	if fileSuffix == "" {
+		return errors.New("视频格式错误")
+	}
+	videoId := snowflake.GenerateId()
+	fileAddr := fmt.Sprintf("video/%d%s", videoId, fileSuffix)
+	_, err = my_minio.Client.PutObject(context.Background(), config.C.Minio.Bucket, fileAddr, reader, file.Size, minio.PutObjectOptions{})
+	if err != nil {
+		log.Slog.Errorln(err)
+		return errors.New("视频上传失败")
+	}
+	video := &entity.Video{
+		Title:    title,
+		PlayUrl:  my_minio.GetFullAddress(fileAddr),
+		CoverUrl: "",
+		UserId:   userId,
+	}
+	video.Id = videoId
+	err = entity.VideoRepo.Create(video)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

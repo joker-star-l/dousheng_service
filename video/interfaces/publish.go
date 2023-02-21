@@ -14,12 +14,10 @@ import (
 
 func publishRouter(h *server.Hertz) {
 	r := h.Group("/douyin/publish")
-	// 需要认证
-	r.Use(jwt.Middleware.MiddlewareFunc())
 	{
 		r.GET("/list/", func(c context.Context, ctx *app.RequestContext) {
-			tokenUser, _ := ctx.Get(jwt.KeyIdentity)
-			userId, _ := strconv.ParseInt(tokenUser.(map[string]any)["id"].(string), 10, 0)
+			// 解析token
+			userId := jwt.ParseAndGetUserId(c, ctx)
 			queryId, err := strconv.ParseInt(ctx.Query("user_id"), 10, 0)
 			if err != nil {
 				ctx.JSON(consts.StatusOK, common.ErrorResponse("参数错误"))
@@ -35,9 +33,11 @@ func publishRouter(h *server.Hertz) {
 				VideoList: publishList,
 			})
 		})
+
+		// 需要认证
+		r.Use(jwt.Middleware.MiddlewareFunc())
 		r.POST("/action/", func(c context.Context, ctx *app.RequestContext) {
-			tokenUser, _ := ctx.Get(jwt.KeyIdentity)
-			userId, _ := strconv.ParseInt(tokenUser.(map[string]any)["id"].(string), 10, 0)
+			userId := jwt.GetUserId(ctx)
 			title := ctx.PostForm("title")
 			file, err := ctx.FormFile("data")
 			if title == "" || file == nil || err != nil {

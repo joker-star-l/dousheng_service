@@ -18,8 +18,7 @@ func messageRouter(h *server.Hertz) {
 		// 需要认证
 		r.Use(jwt.Middleware.MiddlewareFunc())
 		r.POST("/action/", func(c context.Context, ctx *app.RequestContext) {
-			tokenUser, _ := ctx.Get(jwt.KeyIdentity)
-			from, _ := strconv.ParseInt(tokenUser.(map[string]any)["id"].(string), 10, 0)
+			from := jwt.GetUserId(ctx)
 			to, err := strconv.ParseInt(ctx.Query("to_user_id"), 10, 0)
 			actionType := ctx.Query("action_type")
 			if err != nil || actionType != "1" {
@@ -39,8 +38,7 @@ func messageRouter(h *server.Hertz) {
 			ctx.JSON(consts.StatusOK, common.SuccessResponse())
 		})
 		r.GET("/chat/", func(c context.Context, ctx *app.RequestContext) {
-			tokenUser, _ := ctx.Get(jwt.KeyIdentity)
-			from, _ := strconv.ParseInt(tokenUser.(map[string]any)["id"].(string), 10, 0)
+			from := jwt.GetUserId(ctx)
 			to, err := strconv.ParseInt(ctx.Query("to_user_id"), 10, 0)
 			time, err := strconv.ParseInt(ctx.Query("pre_msg_time"), 10, 0)
 			if err != nil {

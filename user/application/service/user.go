@@ -19,6 +19,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"io"
 	"strconv"
+	"sync"
 )
 
 func Register(userVO *vo.LoginUser) (*common.TokenUser, error) {
@@ -64,72 +65,91 @@ func UserInfo(userId int64, queryId int64) (*vo.UserInfo, error) {
 		return nil, errors.New("用户不存在")
 	}
 
-	var avatar = ""
-	reader, err := my_minio.Client.GetObject(context.Background(), config.C.Minio.Bucket, user.Avatar, minio.GetObjectOptions{})
-	if err != nil {
-		log.Slog.Errorln(err)
-	} else {
-		defer reader.Close()
-		stat, err := reader.Stat()
+	wg := &sync.WaitGroup{}
+	wg.Add(4)
+
+	avatar := ""
+	go func() {
+		defer wg.Done()
+		reader, err := my_minio.Client.GetObject(context.Background(), config.C.Minio.Bucket, user.Avatar, minio.GetObjectOptions{})
 		if err != nil {
 			log.Slog.Errorln(err)
 		} else {
-			src := make([]byte, stat.Size)
-			n, err := reader.Read(src)
-			if n <= 0 || err != io.EOF {
+			defer reader.Close()
+			stat, err := reader.Stat()
+			if err != nil {
 				log.Slog.Errorln(err)
 			} else {
-				avatar = "data:image;base64," + base64.StdEncoding.EncodeToString(src)
+				src := make([]byte, stat.Size)
+				n, err := reader.Read(src)
+				if n <= 0 || err != io.EOF {
+					log.Slog.Errorln(err)
+				} else {
+					avatar = "data:image;base64," + base64.StdEncoding.EncodeToString(src)
+				}
 			}
 		}
-	}
+	}()
 
-	var backgroundImage = ""
-	reader, err = my_minio.Client.GetObject(context.Background(), config.C.Minio.Bucket, user.BackgroundImage, minio.GetObjectOptions{})
-	if err != nil {
-		log.Slog.Errorln(err)
-	} else {
-		defer reader.Close()
-		stat, err := reader.Stat()
+	backgroundImage := ""
+	go func() {
+		defer wg.Done()
+		reader, err := my_minio.Client.GetObject(context.Background(), config.C.Minio.Bucket, user.BackgroundImage, minio.GetObjectOptions{})
 		if err != nil {
 			log.Slog.Errorln(err)
 		} else {
-			src := make([]byte, stat.Size)
-			n, err := reader.Read(src)
-			if n <= 0 || err != io.EOF {
+			defer reader.Close()
+			stat, err := reader.Stat()
+			if err != nil {
 				log.Slog.Errorln(err)
 			} else {
-				backgroundImage = "data:image;base64," + base64.StdEncoding.EncodeToString(src)
+				src := make([]byte, stat.Size)
+				n, err := reader.Read(src)
+				if n <= 0 || err != io.EOF {
+					log.Slog.Errorln(err)
+				} else {
+					backgroundImage = "data:image;base64," + base64.StdEncoding.EncodeToString(src)
+				}
 			}
 		}
-	}
+	}()
 
+	// follow 信息
+	isFollow := false
+	go func() {
+		defer wg.Done()
+		if userId != 0 && userId != queryId {
+			tx = gorm.DB.Select("id").Where("user_from = ? and user_to = ?", userId, queryId).Limit(1).Find(&entity.UserFollow{})
+			if tx.RowsAffected > 0 {
+				isFollow = true
+			}
+		}
+	}()
+
+	// count 信息
+	countMap := make(map[string]string)
+	go func() {
+		defer wg.Done()
+		var err error
+		countMap, err = redis.Client.HGetAll(fmt.Sprintf("%s:%d", entity.RedisKeyUserStatistics, queryId)).Result()
+		if err != nil {
+			log.Slog.Errorln(err)
+		}
+	}()
+
+	wg.Wait()
 	userInfo := &vo.UserInfo{
 		Id:              user.Id,
 		Name:            user.Name,
+		FollowCount:     util_redis.ParseCount(countMap[entity.RedisHKeyUserFollowCount]),
+		FollowerCount:   util_redis.ParseCount(countMap[entity.RedisHKeyUserFollowerCount]),
+		IsFollow:        isFollow,
 		Avatar:          avatar,
 		BackgroundImage: backgroundImage,
 		Signature:       user.Signature,
-	}
-
-	// follow 信息
-	if userId != 0 && userId != queryId {
-		tx = gorm.DB.Select("id").Where("user_from = ? and user_to = ?", userId, queryId).Limit(1).Find(&entity.UserFollow{})
-		if tx.RowsAffected > 0 {
-			userInfo.IsFollow = true
-		}
-	}
-
-	// count 信息
-	result, err := redis.Client.HGetAll(fmt.Sprintf("%s:%d", entity.RedisKeyUserStatistics, queryId)).Result()
-	if err != nil {
-		log.Slog.Errorln(err)
-	} else {
-		userInfo.FollowCount = util_redis.ParseCount(result[entity.RedisHKeyUserFollowCount])
-		userInfo.FollowerCount = util_redis.ParseCount(result[entity.RedisHKeyUserFollowerCount])
-		userInfo.TotalFavorited = util_redis.ParseCount(result[entity.RedisHKeyUserTotalFavorited])
-		userInfo.WorkCount = util_redis.ParseCount(result[entity.RedisHKeyUserWorkCount])
-		userInfo.FavoriteCount = util_redis.ParseCount(result[entity.RedisHKeyUserFavoriteCount])
+		TotalFavorited:  util_redis.ParseCount(countMap[entity.RedisHKeyUserTotalFavorited]),
+		WorkCount:       util_redis.ParseCount(countMap[entity.RedisHKeyUserWorkCount]),
+		FavoriteCount:   util_redis.ParseCount(countMap[entity.RedisHKeyUserFavoriteCount]),
 	}
 
 	return userInfo, nil

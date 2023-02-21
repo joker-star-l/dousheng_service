@@ -4,6 +4,7 @@ import (
 	"dousheng_service/video/config"
 	"dousheng_service/video/infrastructure/nacos"
 	"github.com/cloudwego/kitex/client"
+	"github.com/cloudwego/kitex/pkg/retry"
 	"github.com/cloudwego/kitex/transport"
 	api "github.com/joker-star-l/dousheng_idls/user/kitex_gen/api/user"
 	"github.com/kitex-contrib/registry-nacos/resolver"
@@ -17,6 +18,7 @@ func InitClient() {
 	options := []client.Option{
 		client.WithResolver(resolver.NewNacosResolver(nacos.Client)),
 		client.WithTransportProtocol(transport.TTHeader),
+		client.WithFailureRetry(retry.NewFailurePolicy()),
 	}
 	if runtime.GOOS != "windows" {
 		options = append(options, client.WithMuxConnection(1))

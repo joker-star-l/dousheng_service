@@ -21,6 +21,7 @@ func InitServer() {
 			server.WithServiceAddr(util_net.IpFromStr(config.C.Ip, config.C.RpcPort)),
 			server.WithRegistry(registry.NewNacosRegistry(nacos.Client)),
 			server.WithMiddleware(util_kitex.Log),
+			server.WithReusePort(true),
 		}
 		if runtime.GOOS != "windows" {
 			options = append(options, server.WithMuxTransport())

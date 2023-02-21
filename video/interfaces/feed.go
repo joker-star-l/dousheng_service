@@ -19,11 +19,7 @@ func feedRouter(h *server.Hertz) {
 		// 无需认证
 		r.GET("/", func(c context.Context, ctx *app.RequestContext) {
 			// 解析token
-			userId := int64(0)
-			claims, err := jwt.Middleware.GetClaimsFromJWT(c, ctx)
-			if err == nil && claims != nil {
-				userId, _ = strconv.ParseInt(claims[jwt.KeyData].(map[string]any)["id"].(string), 10, 0)
-			}
+			userId := jwt.ParseAndGetUserId(c, ctx)
 			// 解析时间
 			latestTime := time.Now()
 			timestamp, err := strconv.ParseInt(ctx.Query("latest_time"), 10, 0)
