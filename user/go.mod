@@ -8,6 +8,7 @@ require (
 	github.com/cloudwego/kitex v0.4.4
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/joker-star-l/dousheng_common v0.0.7
+	github.com/joker-star-l/dousheng_idls/message v0.0.1
 	github.com/joker-star-l/dousheng_idls/user v0.0.3
 	github.com/kitex-contrib/registry-nacos v0.0.1
 	github.com/minio/minio-go/v7 v7.0.49
@@ -23,7 +24,7 @@ replace github.com/joker-star-l/dousheng_common => ../../dousheng_common
 
 require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.18 // indirect
-	github.com/apache/thrift v0.17.0 // indirect
+	github.com/apache/thrift v0.18.0 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/bytedance/go-tagexpr/v2 v2.9.2 // indirect
 	github.com/bytedance/gopkg v0.0.0-20220531084716-665b4f21126f // indirect

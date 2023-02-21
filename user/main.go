@@ -1,6 +1,7 @@
 package main
 
 import (
+	"dousheng_service/user/application/service"
 	"dousheng_service/user/config"
 	"dousheng_service/user/infrastructure/gorm"
 	"dousheng_service/user/infrastructure/kitex"
@@ -25,7 +26,8 @@ func argParse() {
 func init() {
 	argParse()
 	nacos.Init()
-	kitex.InitServer()
+	kitex.InitServer(new(service.UserImpl))
+	kitex.InitClient()
 	gorm.Init()
 	snowflake.Init()
 	minio.Init()

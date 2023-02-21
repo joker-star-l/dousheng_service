@@ -5,6 +5,7 @@ import (
 	"dousheng_service/user/config"
 	"dousheng_service/user/domain/user/entity"
 	"dousheng_service/user/infrastructure/gorm"
+	"dousheng_service/user/infrastructure/kitex"
 	my_minio "dousheng_service/user/infrastructure/minio"
 	"dousheng_service/user/infrastructure/redis"
 	"dousheng_service/user/infrastructure/snowflake"
@@ -225,12 +226,20 @@ func GetFriendList(userId int64) ([]vo.FriendInfo, error) {
 		}
 		info, err := UserInfo(userId, friendId)
 		if err == nil {
-			// TODO RPC 调用
-			result = append(result, vo.FriendInfo{
-				UserInfo: *info,
-				Message:  "FAKE",
-				MsgType:  1,
-			})
+			friendInfo := vo.FriendInfo{UserInfo: *info}
+			// RPC 调用
+			resp, _ := kitex.MessageClient.LatestMessage(context.Background(), userId, friendId)
+			if resp == nil {
+				log.Slog.Errorln("RPC 调用失败")
+			} else if resp.Response.StatusCode != common.StatusSuccess {
+				log.Slog.Errorln(resp.Response.StatusMsg)
+			} else {
+				friendInfo.Message = resp.Message
+				if userId == resp.From {
+					friendInfo.MsgType = 1
+				}
+			}
+			result = append(result, friendInfo)
 		}
 	}
 	return result, nil

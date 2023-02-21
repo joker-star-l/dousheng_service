@@ -8,7 +8,7 @@ import (
 
 type UserImpl struct{}
 
-func (s *UserImpl) UserInfo(ctx context.Context, userId int64, queryId int64) (resp *api.UserInfoResponse, err error) {
+func (s *UserImpl) UserInfo(ctx context.Context, userId int64, queryId int64) (*api.UserInfoResponse, error) {
 	info, err := UserInfo(userId, queryId)
 	if err != nil {
 		return &api.UserInfoResponse{

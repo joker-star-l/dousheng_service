@@ -49,4 +49,5 @@ type UserService struct {
 		Address  string `json:"address"`
 		Password string `json:"password"`
 	} `json:"redis"`
+	MessageRpcName string `json:"message_rpc_name"`
 }

@@ -1,20 +1,20 @@
 package kitex
 
 import (
-	"dousheng_service/user/config"
-	"dousheng_service/user/infrastructure/nacos"
+	"dousheng_service/message/config"
+	"dousheng_service/message/infrastructure/nacos"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
 	"github.com/joker-star-l/dousheng_common/config/log"
 	util_kitex "github.com/joker-star-l/dousheng_common/util/kitex"
 	util_net "github.com/joker-star-l/dousheng_common/util/net"
-	"github.com/joker-star-l/dousheng_idls/user/kitex_gen/api"
-	"github.com/joker-star-l/dousheng_idls/user/kitex_gen/api/user"
+	"github.com/joker-star-l/dousheng_idls/message/kitex_gen/api"
+	"github.com/joker-star-l/dousheng_idls/message/kitex_gen/api/message"
 	"github.com/kitex-contrib/registry-nacos/registry"
 	"runtime"
 )
 
-func InitServer(handler api.User) {
+func InitServer(handler api.Message) {
 	go func() {
 		options := []server.Option{
 			server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: config.C.RpcName}),
@@ -26,7 +26,7 @@ func InitServer(handler api.User) {
 		if runtime.GOOS != "windows" {
 			options = append(options, server.WithMuxTransport())
 		}
-		svr := user.NewServer(handler, options...)
+		svr := message.NewServer(handler, options...)
 		err := svr.Run()
 		if err != nil {
 			log.Slog.Panicln(err.Error())

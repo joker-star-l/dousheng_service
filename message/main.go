@@ -1,8 +1,10 @@
 package main
 
 import (
+	"dousheng_service/message/application/service"
 	"dousheng_service/message/config"
 	"dousheng_service/message/infrastructure/gorm"
+	"dousheng_service/message/infrastructure/kitex"
 	"dousheng_service/message/infrastructure/nacos"
 	"dousheng_service/message/infrastructure/redis"
 	"dousheng_service/message/infrastructure/snowflake"
@@ -24,6 +26,7 @@ func argParse() {
 func init() {
 	argParse()
 	nacos.Init()
+	kitex.InitServer(new(service.MessageImpl))
 	gorm.Init()
 	snowflake.Init()
 	redis.Init()
