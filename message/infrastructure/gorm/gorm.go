@@ -1,7 +1,7 @@
 package gorm
 
 import (
-	"dousheng_service/message/infrastructure/config"
+	"dousheng_service/message/config"
 	"github.com/joker-star-l/dousheng_common/config/log"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

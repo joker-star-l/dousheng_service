@@ -1,7 +1,7 @@
 package redis
 
 import (
-	"dousheng_service/user/infrastructure/config"
+	"dousheng_service/user/config"
 	"github.com/go-redis/redis"
 )
 

@@ -35,5 +35,21 @@ func publishRouter(h *server.Hertz) {
 				VideoList: publishList,
 			})
 		})
+		r.POST("/action/", func(c context.Context, ctx *app.RequestContext) {
+			tokenUser, _ := ctx.Get(jwt.KeyIdentity)
+			userId, _ := strconv.ParseInt(tokenUser.(map[string]any)["id"].(string), 10, 0)
+			title := ctx.PostForm("title")
+			file, err := ctx.FormFile("data")
+			if title == "" || file == nil || err != nil {
+				ctx.JSON(consts.StatusOK, common.ErrorResponse("参数错误"))
+				return
+			}
+			err = service.Publish(userId, title, file)
+			if err != nil {
+				ctx.JSON(consts.StatusOK, common.ErrorResponse(err.Error()))
+				return
+			}
+			ctx.JSON(consts.StatusOK, common.SuccessResponse())
+		})
 	}
 }

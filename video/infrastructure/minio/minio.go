@@ -1,7 +1,7 @@
 package minio
 
 import (
-	"dousheng_service/video/infrastructure/config"
+	"dousheng_service/video/config"
 	"fmt"
 	"github.com/joker-star-l/dousheng_common/config/log"
 	"github.com/minio/minio-go/v7"

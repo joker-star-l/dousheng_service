@@ -1,7 +1,7 @@
 package main
 
 import (
-	"dousheng_service/message/infrastructure/config"
+	"dousheng_service/message/config"
 	"dousheng_service/message/infrastructure/gorm"
 	"dousheng_service/message/infrastructure/nacos"
 	"dousheng_service/message/infrastructure/redis"

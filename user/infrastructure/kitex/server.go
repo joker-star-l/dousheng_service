@@ -2,7 +2,7 @@ package kitex
 
 import (
 	"dousheng_service/user/application/service"
-	"dousheng_service/user/infrastructure/config"
+	"dousheng_service/user/config"
 	"dousheng_service/user/infrastructure/nacos"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"dousheng_service/video/infrastructure/config"
+	"dousheng_service/video/config"
 	"dousheng_service/video/infrastructure/gorm"
 	"dousheng_service/video/infrastructure/kitex"
 	"dousheng_service/video/infrastructure/minio"

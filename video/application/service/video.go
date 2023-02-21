@@ -12,6 +12,7 @@ import (
 	"github.com/joker-star-l/dousheng_common/config/log"
 	common "github.com/joker-star-l/dousheng_common/entity"
 	util_redis "github.com/joker-star-l/dousheng_common/util/redis"
+	"mime/multipart"
 	"time"
 )
 
@@ -43,6 +44,11 @@ func GetPublishList(userId int64, queryId int64) ([]vo.VideoInfo, error) {
 		result = append(result, *videoInfo)
 	}
 	return result, nil
+}
+
+func Publish(userId int64, title string, file *multipart.FileHeader) error {
+	// 校验
+	return nil
 }
 
 func Favorite(userId int64, videoId int64) error {

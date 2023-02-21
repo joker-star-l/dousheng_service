@@ -1,7 +1,7 @@
 package redis
 
 import (
-	"dousheng_service/video/infrastructure/config"
+	"dousheng_service/video/config"
 	"github.com/go-redis/redis"
 )
 

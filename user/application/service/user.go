@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
+	"dousheng_service/user/config"
 	"dousheng_service/user/domain/user/entity"
-	"dousheng_service/user/infrastructure/config"
 	"dousheng_service/user/infrastructure/gorm"
 	my_minio "dousheng_service/user/infrastructure/minio"
 	"dousheng_service/user/infrastructure/redis"

@@ -1,7 +1,7 @@
 package kitex
 
 import (
-	"dousheng_service/video/infrastructure/config"
+	"dousheng_service/video/config"
 	"dousheng_service/video/infrastructure/nacos"
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/transport"

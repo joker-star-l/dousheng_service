@@ -1,7 +1,7 @@
 package nacos
 
 import (
-	"dousheng_service/user/infrastructure/config"
+	"dousheng_service/user/config"
 	"github.com/joker-star-l/dousheng_common/config/log"
 	util_json "github.com/joker-star-l/dousheng_common/util/json"
 	util_nacos "github.com/joker-star-l/dousheng_common/util/nacos"

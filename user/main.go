@@ -1,7 +1,7 @@
 package main
 
 import (
-	"dousheng_service/user/infrastructure/config"
+	"dousheng_service/user/config"
 	"dousheng_service/user/infrastructure/gorm"
 	"dousheng_service/user/infrastructure/kitex"
 	"dousheng_service/user/infrastructure/minio"

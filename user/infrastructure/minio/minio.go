@@ -1,7 +1,7 @@
 package minio
 
 import (
-	"dousheng_service/user/infrastructure/config"
+	"dousheng_service/user/config"
 	"fmt"
 	"github.com/joker-star-l/dousheng_common/config/log"
 	"github.com/minio/minio-go/v7"

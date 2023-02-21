@@ -1,7 +1,7 @@
 package snowflake
 
 import (
-	"dousheng_service/message/infrastructure/config"
+	"dousheng_service/message/config"
 	"github.com/bwmarrin/snowflake"
 )
 

@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"dousheng_service/user/infrastructure/config"
+	"dousheng_service/user/config"
 	"dousheng_service/user/infrastructure/nacos"
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/transport"
