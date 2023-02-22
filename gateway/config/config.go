@@ -15,7 +15,7 @@ var C = Config{
 		HttpPort: 7001,
 		NacosClientParam: vo.NacosClientParam{
 			ServerConfigs: []constant.ServerConfig{
-				*constant.NewServerConfig("111.229.8.227", 8848),
+				*constant.NewServerConfig("127.0.0.1", 8848),
 			},
 			ClientConfig: &constant.ClientConfig{
 				CacheDir: "/tmp/dousheng_service/gateway/nacos/cache/",
