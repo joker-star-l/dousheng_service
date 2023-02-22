@@ -170,6 +170,8 @@ github.com/jmespath/go-jmespath v0.4.0 h1:BEgLn5cpjn8UN1mAw4NjwDrS35OdebyEtFe+9Y
 github.com/jmespath/go-jmespath v0.4.0/go.mod h1:T8mJZnbsbmF+m6zOOFylbeCJqk5+pHWvzYPziyZiYoo=
 github.com/jmespath/go-jmespath/internal/testify v1.5.1 h1:shLQSRRSCCPj3f2gpwzGwWFoC7ycTf1rcQZHOlsJ6N8=
 github.com/jmespath/go-jmespath/internal/testify v1.5.1/go.mod h1:L3OGu8Wl2/fWfCI6z80xFu9LTZmf1ZRjMHUOPmWr69U=
+github.com/joker-star-l/dousheng_common v0.0.8 h1:3J4JjGYWoZ2RA/Z4gp9DsA7Im/0cFi4/+Utz2MYTJss=
+github.com/joker-star-l/dousheng_common v0.0.8/go.mod h1:gdNTFqCQFGR9BFLv9Rsfifv5bRZMz9FQ/flbqAf/lvI=
 github.com/joker-star-l/dousheng_idls/user v0.0.3 h1:NcHcZZl1RoWRfPCiZDhNc2cvz0xX/ZdD3QbLdSiiMSo=
 github.com/joker-star-l/dousheng_idls/user v0.0.3/go.mod h1:ub+19/GqmmDwrlp8D3OwQoFrse2smZJJhnEZ7mfLKk8=
 github.com/json-iterator/go v1.1.5/go.mod h1:+SdeFBvtyEkXs7REEP0seUULqWtbJapLOCVDaaPEHmU=

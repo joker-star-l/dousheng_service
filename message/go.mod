@@ -7,7 +7,7 @@ require (
 	github.com/cloudwego/hertz v0.5.2
 	github.com/cloudwego/kitex v0.4.4
 	github.com/go-redis/redis v6.15.9+incompatible
-	github.com/joker-star-l/dousheng_common v0.0.7
+	github.com/joker-star-l/dousheng_common v0.0.8
 	github.com/joker-star-l/dousheng_idls/message v0.0.1
 	github.com/kitex-contrib/registry-nacos v0.0.1
 	github.com/nacos-group/nacos-sdk-go v1.1.4
@@ -17,7 +17,7 @@ require (
 
 replace github.com/apache/thrift => github.com/apache/thrift v0.13.0
 
-replace github.com/joker-star-l/dousheng_common => ../../dousheng_common
+//replace github.com/joker-star-l/dousheng_common => ../../dousheng_common
 
 require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.18 // indirect

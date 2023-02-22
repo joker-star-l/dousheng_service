@@ -6,11 +6,11 @@ require (
 	github.com/cloudwego/hertz v0.5.2
 	github.com/hertz-contrib/registry/nacos v0.0.0-20221226122036-3c451682dc72
 	github.com/hertz-contrib/reverseproxy v1.0.0
-	github.com/joker-star-l/dousheng_common v0.0.7
+	github.com/joker-star-l/dousheng_common v0.0.8
 	github.com/nacos-group/nacos-sdk-go v1.1.4
 )
 
-replace github.com/joker-star-l/dousheng_common => ../../dousheng_common
+//replace github.com/joker-star-l/dousheng_common => ../../dousheng_common
 
 require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.18 // indirect
