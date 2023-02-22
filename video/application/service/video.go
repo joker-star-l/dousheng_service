@@ -16,12 +16,12 @@ import (
 	common "github.com/joker-star-l/dousheng_common/entity"
 	util_redis "github.com/joker-star-l/dousheng_common/util/redis"
 	"github.com/minio/minio-go/v7"
+	ffmpeg_go "github.com/u2takey/ffmpeg-go"
 	"mime/multipart"
+	"os"
 	"strings"
 	"time"
 )
-
-var VideoType = &[]string{".mp4", ".flv", ".f4v", ".webm"}
 
 func Feed(userId int64, latestTime time.Time) ([]vo.VideoInfo, error) {
 	var videoList []entity.Video
@@ -59,27 +59,39 @@ func Publish(userId int64, title string, file *multipart.FileHeader) error {
 		log.Slog.Errorln(err)
 		return errors.New("视频上传失败")
 	}
-	fileSuffix := ""
-	for _, suffix := range *VideoType {
-		if strings.HasSuffix(file.Filename, suffix) {
-			fileSuffix = suffix
-			break
-		}
-	}
-	if fileSuffix == "" {
+	suffix := ".mp4"
+	if !strings.HasSuffix(file.Filename, suffix) {
 		return errors.New("视频格式错误")
 	}
 	videoId := snowflake.GenerateId()
-	fileAddr := fmt.Sprintf("video/%d%s", videoId, fileSuffix)
+	fileAddr := fmt.Sprintf("video/%d%s", videoId, suffix)
+	// 上传视频
 	_, err = my_minio.Client.PutObject(context.Background(), config.C.Minio.Bucket, fileAddr, reader, file.Size, minio.PutObjectOptions{})
 	if err != nil {
 		log.Slog.Errorln(err)
 		return errors.New("视频上传失败")
 	}
+	// 生成图片并上传
+	playUrl := my_minio.GetFullAddress(fileAddr)
+	coverUrl := ""
+	localAddr := fmt.Sprintf("%d.png", videoId)
+	err = ffmpeg_go.Input(playUrl).Output(localAddr, ffmpeg_go.KwArgs{"vframes": 1, "format": "image2", "vcodec": "png"}).Run()
+	if err == nil {
+		remoteAddr := fmt.Sprintf("cover/%d.png", videoId)
+		_, err = my_minio.Client.FPutObject(context.Background(), config.C.Minio.Bucket, remoteAddr, localAddr, minio.PutObjectOptions{})
+		if err != nil {
+			log.Slog.Errorln(err)
+			return errors.New("视频封面上传失败")
+		} else {
+			os.Remove(localAddr)
+			coverUrl = my_minio.GetFullAddress(remoteAddr)
+		}
+	}
+
 	video := &entity.Video{
 		Title:    title,
-		PlayUrl:  my_minio.GetFullAddress(fileAddr),
-		CoverUrl: "",
+		PlayUrl:  playUrl,
+		CoverUrl: coverUrl,
 		UserId:   userId,
 	}
 	video.Id = videoId
