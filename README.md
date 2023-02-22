@@ -12,4 +12,4 @@
 
 ## 服务架构
 
-![img](D:\GolandProjects\dousheng_service\img\img.png)
+![img](./img.png)
