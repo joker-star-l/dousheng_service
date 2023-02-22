@@ -12,4 +12,4 @@
 
 ## 服务架构
 
-![img](./img.png)
+![img](./img/img.png)
